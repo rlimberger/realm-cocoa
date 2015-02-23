@@ -247,8 +247,12 @@ NSArray *RLMCollectionValueForKey(NSString *key, RLMRealm *realm, RLMObjectSchem
     }
     BOOL keyIsSelf = [key isEqualToString:@"self"];
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:count];
-    RLMObjectBase *accessor = RLMCreateObjectAccessor(realm, objectSchema, 0);
-    tightdb::Table *table = objectSchema.table;
+    RLMObjectBase *accessor;
+    tightdb::Table *table = nullptr;
+    if (!keyIsSelf) {
+        accessor = [[objectSchema.accessorClass alloc] initWithRealm:realm schema:objectSchema defaultValues:NO];
+        table = objectSchema.table;
+    }
     for (size_t i = 0; i < count; i++) {
         size_t rowIndex = indexGenerator();
         id value;
@@ -257,6 +261,7 @@ NSArray *RLMCollectionValueForKey(NSString *key, RLMRealm *realm, RLMObjectSchem
         }
         else {
             accessor->_row = (*table)[rowIndex];
+            RLMInitializeSwiftListAccessor(accessor);
             value = [accessor valueForKey:key];
         }
 
@@ -270,11 +275,12 @@ void RLMCollectionSetValueForKey(id value, NSString *key, RLMRealm *realm, RLMOb
     if (count == 0) {
         return;
     }
-    RLMObjectBase *accessor = RLMCreateObjectAccessor(realm, objectSchema, 0);
+    RLMObjectBase *accessor = [[objectSchema.accessorClass alloc] initWithRealm:realm schema:objectSchema defaultValues:NO];
     tightdb::Table *table = objectSchema.table;
     for (size_t i = 0; i < count; i++) {
         size_t rowIndex = indexGenerator();
         accessor->_row = (*table)[rowIndex];
+        RLMInitializeSwiftListAccessor(accessor);
         [accessor setValue:value forKey:key];
     }
 }

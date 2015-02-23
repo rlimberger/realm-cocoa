@@ -322,7 +322,7 @@ static inline void RLMVerifyInWriteTransaction(RLMRealm *realm) {
     RLMCheckThread(realm);
 }
 
-static inline void RLMInitializeSwiftListAccessor(RLMObjectBase *object) {
+void RLMInitializeSwiftListAccessor(RLMObjectBase *object) {
     // switch List<> properties to linkviews from standalone arrays
     for (RLMProperty *prop in object.objectSchema.properties) {
         if (prop.swiftListIvar) {
