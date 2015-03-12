@@ -68,7 +68,7 @@ MemRef ArrayIntNull::create_array(Type type, bool context_flag, std::size_t size
     return r;
 }
 
-void ArrayIntNull::choose_random_null(int64_t incoming)
+int_fast64_t ArrayIntNull::choose_random_null(int64_t incoming)
 {
     while (true) {
         // FIXME: Use a better rand() function.
@@ -77,6 +77,7 @@ void ArrayIntNull::choose_random_null(int64_t incoming)
             continue;
         }
         if (can_use_as_null(candidate)) {
+            return candidate;
             replace_nulls_with(candidate);
             break;
         }
@@ -107,24 +108,43 @@ void ArrayIntNull::replace_nulls_with(int64_t new_null)
 }
 
 
+namespace {
+    inline
+    int_fast64_t upper_bound_for_bit_width(int_fast64_t width)
+    {
+        return (1UL << (width - 1)) - 1;
+    }
+}
+
+
 void ArrayIntNull::ensure_not_null(int64_t value)
 {
     if (m_width == 64) {
         if (value == null_value()) {
-            choose_random_null(value);
+            int_fast64_t new_null = choose_random_null(value);
+            replace_nulls_with(new_null);
         }
     }
     else {
         if (value >= m_ubound) {
-            size_t new_width = bit_width(value + 1); // +1 because we need room for ubound too
+            size_t new_width = bit_width(value);
+            int64_t new_upper_bound = upper_bound_for_bit_width(new_width);
+
+            if (new_width < 64 && value == new_upper_bound) {
+                new_width *= 2;
+                new_upper_bound = upper_bound_for_bit_width(new_width);
+            }
+
+            int64_t new_null;
             if (new_width == 64) {
                 // Width will be upgraded to 64, so we need to pick a random NULL.
-                choose_random_null(value);
+                new_null = choose_random_null(value);
             }
             else {
-                int64_t new_null = (1UL << (new_width - 1)) - 1; // == m_ubound after upgrade
-                replace_nulls_with(new_null); // Expands array
+                new_null = new_upper_bound;
             }
+            
+            replace_nulls_with(new_null); // Expands array
         }
     }
 }

@@ -167,7 +167,7 @@ public:
 protected:
     void ensure_not_null(int64_t value);
 private:
-    void choose_random_null(int64_t incoming);
+    int_fast64_t choose_random_null(int64_t incoming);
     void replace_nulls_with(int64_t new_null);
     bool can_use_as_null(int64_t value);
 };
