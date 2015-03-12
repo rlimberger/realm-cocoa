@@ -979,6 +979,14 @@ protected:
                             bool context_flag, WidthType width_type, int width,
                             std::size_t size, std::size_t capacity) TIGHTDB_NOEXCEPT;
 
+    template <std::size_t width>
+    static int_fast64_t lbound_for_width() TIGHTDB_NOEXCEPT;
+    static int_fast64_t lbound_for_width(std::size_t width) TIGHTDB_NOEXCEPT;
+
+    template <std::size_t width>
+    static int_fast64_t ubound_for_width() TIGHTDB_NOEXCEPT;
+    static int_fast64_t ubound_for_width(std::size_t width) TIGHTDB_NOEXCEPT;
+
     template<std::size_t width> void set_width() TIGHTDB_NOEXCEPT;
     void set_width(std::size_t) TIGHTDB_NOEXCEPT;
     void alloc(std::size_t count, std::size_t width);

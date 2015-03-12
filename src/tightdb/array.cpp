@@ -1709,6 +1709,80 @@ void Array::alloc(size_t size, size_t width)
     set_header_size(size);
 }
 
+int_fast64_t Array::lbound_for_width(size_t width) TIGHTDB_NOEXCEPT
+{
+    TIGHTDB_TEMPEX(return lbound_for_width, width, ());
+}
+
+template <size_t width>
+int_fast64_t Array::lbound_for_width() TIGHTDB_NOEXCEPT
+{
+    if (width == 0) {
+        return 0;
+    }
+    else if (width == 1) {
+        return 0;
+    }
+    else if (width == 2) {
+        return 0;
+    }
+    else if (width == 4) {
+        return 0;
+    }
+    else if (width == 8) {
+        return -0x80LL;
+    }
+    else if (width == 16) {
+        return -0x8000LL;
+    }
+    else if (width == 32) {
+        return -0x80000000LL;
+    }
+    else if (width == 64) {
+        return -0x8000000000000000LL;
+    }
+    else {
+        TIGHTDB_UNREACHABLE();
+    }
+}
+
+int_fast64_t Array::ubound_for_width(size_t width) TIGHTDB_NOEXCEPT
+{
+    TIGHTDB_TEMPEX(return ubound_for_width, width, ());
+}
+
+template <size_t width>
+int_fast64_t Array::ubound_for_width() TIGHTDB_NOEXCEPT
+{
+    if (width == 0) {
+        return 0;
+    }
+    else if (width == 1) {
+        return 1;
+    }
+    else if (width == 2) {
+        return 3;
+    }
+    else if (width == 4) {
+        return 15;
+    }
+    else if (width == 8) {
+        return 0x7FLL;
+    }
+    else if (width == 16) {
+        return 0x7FFFLL;
+    }
+    else if (width == 32) {
+        return 0x7FFFFFFFLL;
+    }
+    else if (width == 64) {
+        return 0x7FFFFFFFFFFFFFFFLL;
+    }
+    else {
+        TIGHTDB_UNREACHABLE();
+    }
+}
+
 
 void Array::set_width(size_t width) TIGHTDB_NOEXCEPT
 {
@@ -1717,41 +1791,8 @@ void Array::set_width(size_t width) TIGHTDB_NOEXCEPT
 
 template<size_t width> void Array::set_width() TIGHTDB_NOEXCEPT
 {
-    if (width == 0) {
-        m_lbound = 0;
-        m_ubound = 0;
-    }
-    else if (width == 1) {
-        m_lbound = 0;
-        m_ubound = 1;
-    }
-    else if (width == 2) {
-        m_lbound = 0;
-        m_ubound = 3;
-    }
-    else if (width == 4) {
-        m_lbound = 0;
-        m_ubound = 15;
-    }
-    else if (width == 8) {
-        m_lbound = -0x80LL;
-        m_ubound =  0x7FLL;
-    }
-    else if (width == 16) {
-        m_lbound = -0x8000LL;
-        m_ubound =  0x7FFFLL;
-    }
-    else if (width == 32) {
-        m_lbound = -0x80000000LL;
-        m_ubound =  0x7FFFFFFFLL;
-    }
-    else if (width == 64) {
-        m_lbound = -0x8000000000000000LL;
-        m_ubound =  0x7FFFFFFFFFFFFFFFLL;
-    }
-    else {
-        TIGHTDB_ASSERT_DEBUG(false);
-    }
+    m_lbound = lbound_for_width<width>();
+    m_ubound = ubound_for_width<width>();
 
     m_width = width;
     // m_getter = temp is a workaround for a bug in VC2010 that makes it return address of get() instead of get<n>
