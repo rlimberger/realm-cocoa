@@ -276,7 +276,7 @@ ArrayIntNull::ArrayIntNull(Allocator& alloc) TIGHTDB_NOEXCEPT: Array(alloc)
 }
 
 inline
-ArrayIntNull::~ArrayIntNull() TIGHTDB_NOEXCEPT TIGHTDB_OVERRIDE
+ArrayIntNull::~ArrayIntNull()
 {
 }
 
