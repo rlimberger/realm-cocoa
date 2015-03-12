@@ -138,7 +138,7 @@ TEST(ArrayIntNull_SetIntegerToPreviousNullValueChoosesNewNull) {
     // array should be upgraded now
     CHECK(a.is_null(1));
 
-    a.add(1000000000000); // upgrade to 64-bit, null should now be a "random" value
+    a.add(1000000000000LL); // upgrade to 64-bit, null should now be a "random" value
     CHECK(a.is_null(1));
     int64_t old_null = a.null_value();
     a.add(old_null);
