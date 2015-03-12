@@ -86,13 +86,7 @@ int_fast64_t ArrayIntNull::choose_random_null(int64_t incoming)
 
 bool ArrayIntNull::can_use_as_null(int64_t candidate)
 {
-    // FIXME: Optimize!
-    for (size_t i = 0; i < size(); ++i) {
-        if (get(i) == candidate) {
-            return false;
-        }
-    }
-    return true;
+    return find_first(candidate) == npos;
 }
 
 void ArrayIntNull::replace_nulls_with(int64_t new_null)
