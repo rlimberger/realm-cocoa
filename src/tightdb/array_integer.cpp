@@ -117,7 +117,7 @@ void ArrayIntNull::ensure_not_null(int64_t value)
             // explicitly that the incoming value doesn't happen to be the new
             // NULL value. If it is, we upgrade one step further.
             if (new_width < 64 && value == new_upper_bound) {
-                new_width *= 2;
+                new_width = (new_width == 0 ? 1 : new_width * 2);
                 new_upper_bound = Array::ubound_for_width(new_width);
             }
 
