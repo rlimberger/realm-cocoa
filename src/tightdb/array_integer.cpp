@@ -108,15 +108,6 @@ void ArrayIntNull::replace_nulls_with(int64_t new_null)
 }
 
 
-namespace {
-    inline
-    int_fast64_t upper_bound_for_bit_width(int_fast64_t width)
-    {
-        return (1UL << (width - 1)) - 1;
-    }
-}
-
-
 void ArrayIntNull::ensure_not_null(int64_t value)
 {
     if (m_width == 64) {
@@ -128,11 +119,11 @@ void ArrayIntNull::ensure_not_null(int64_t value)
     else {
         if (value >= m_ubound) {
             size_t new_width = bit_width(value);
-            int64_t new_upper_bound = upper_bound_for_bit_width(new_width);
+            int64_t new_upper_bound = Array::ubound_for_width(new_width);
 
             if (new_width < 64 && value == new_upper_bound) {
                 new_width *= 2;
-                new_upper_bound = upper_bound_for_bit_width(new_width);
+                new_upper_bound = Array::ubound_for_width(new_width);
             }
 
             int64_t new_null;
