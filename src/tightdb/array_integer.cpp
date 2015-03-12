@@ -59,7 +59,8 @@ MemRef ArrayIntNull::create_array(Type type, bool context_flag, std::size_t size
     ArrayIntNull arr(alloc);
     arr.init_from_mem(r);
     if (arr.m_width == 64) {
-        arr.Array::set(0, value + 1);
+        int_fast64_t null_value = value ^ 1; // Just anything different from value.
+        arr.Array::set(0, null_value);
     }
     else {
         arr.Array::set(0, arr.m_ubound);
