@@ -78,8 +78,6 @@ int_fast64_t ArrayIntNull::choose_random_null(int64_t incoming)
         }
         if (can_use_as_null(candidate)) {
             return candidate;
-            replace_nulls_with(candidate);
-            break;
         }
     }
 }
