@@ -148,3 +148,15 @@ TEST(ArrayIntNull_SetIntegerToPreviousNullValueChoosesNewNull) {
     a.destroy();
 }
 
+TEST(ArrayIntNull_Boundaries) {
+    ArrayIntNull a(Allocator::get_default());
+    a.create(Array::type_Normal);
+    a.add(0);
+    a.set_null(0);
+    a.add(0);
+    CHECK(a.is_null(0));
+    CHECK(!a.is_null(1));
+    CHECK_EQUAL(a.get_width(), 1);
+
+    a.destroy();
+}
