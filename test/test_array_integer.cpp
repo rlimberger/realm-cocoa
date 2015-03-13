@@ -160,3 +160,18 @@ TEST(ArrayIntNull_Boundaries) {
 
     a.destroy();
 }
+
+TEST(ArrayIntNull_SetUint0) {
+    ArrayIntNull a(Allocator::get_default());
+    a.create(Array::type_Normal);
+    a.add(0);
+    a.add(0);
+
+    a.set_uint(0, 0);
+    a.set_null(1);
+
+    CHECK(!a.is_null(0));
+    CHECK(a.is_null(1));
+
+    a.destroy();
+}
