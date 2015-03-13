@@ -324,7 +324,7 @@ inline
 void ArrayIntNull::set_uint(std::size_t ndx, uint64_t value)
 {
     ensure_not_null(value);
-    Array::set(ndx, value);
+    Array::set(ndx + 1, value);
 }
 
 inline
