@@ -156,7 +156,72 @@ TEST(ArrayIntNull_Boundaries) {
     a.add(0);
     CHECK(a.is_null(0));
     CHECK(!a.is_null(1));
-    CHECK_EQUAL(a.get_width(), 1);
+    CHECK_EQUAL(a.get_width(), 1); // not sure if this should stay. Makes assumtions about implementation details.
+
+
+    // consider turning this into a array + loop
+    a.add(0);
+    CHECK_EQUAL(0, a.back());
+    CHECK(a.is_null(0));
+
+    a.add(1);
+    CHECK_EQUAL(1, a.back());
+    CHECK(a.is_null(0));
+
+    a.add(3);
+    CHECK_EQUAL(3, a.back());
+    CHECK(a.is_null(0));
+
+    a.add(15);
+    CHECK_EQUAL(15, a.back());
+    CHECK(a.is_null(0));
+
+
+    a.add(INT8_MAX);
+    CHECK_EQUAL(INT8_MAX, a.back());
+    CHECK(a.is_null(0));
+
+    a.add(INT8_MIN);
+    CHECK_EQUAL(INT8_MIN, a.back());
+    CHECK(a.is_null(0));
+
+    a.add(UINT8_MAX);
+    CHECK_EQUAL(UINT8_MAX, a.back());
+    CHECK(a.is_null(0));
+
+
+    a.add(INT16_MAX);
+    CHECK_EQUAL(INT16_MAX, a.back());
+    CHECK(a.is_null(0));
+    a.add(INT16_MIN);
+    CHECK_EQUAL(INT16_MIN, a.back());
+    CHECK(a.is_null(0));
+    a.add(UINT16_MAX);
+    CHECK_EQUAL(UINT16_MAX, a.back());
+    CHECK(a.is_null(0));
+
+
+    a.add(INT32_MAX);
+    CHECK_EQUAL(INT32_MAX, a.back());
+    CHECK(a.is_null(0));
+    a.add(INT32_MIN);
+    CHECK_EQUAL(INT32_MIN, a.back());
+    CHECK(a.is_null(0));
+    a.add(UINT32_MAX);
+    CHECK_EQUAL(UINT32_MAX, a.back());
+    CHECK(a.is_null(0));
+
+
+    a.add(INT64_MAX);
+    CHECK_EQUAL(INT64_MAX, a.back());
+    CHECK(a.is_null(0));
+    a.add(INT64_MIN);
+    CHECK_EQUAL(INT64_MIN, a.back());
+    CHECK(a.is_null(0));
+    a.add(UINT64_MAX);
+    CHECK_EQUAL(UINT64_MAX, a.get_uint(a.size()-1));
+    CHECK(a.is_null(0));
+
 
     a.destroy();
 }
