@@ -601,10 +601,12 @@ static void advance_notify(SharedGroup *sg, RLMSchema *schema) {
         for (NSString *key in objectSchema->_observers) {
             for (RLMObservationInfo *observer in objectSchema->_observers[key]) {
                 if (modified.find_by_source_ndx(observer.obj->_row.get_index()) != tightdb::not_found) {
-                    RLMWillChange(observer, key);
-                    RLMDidChange(observer, key, [observer.obj valueForKey:key]);
+                    id value = [observer.obj valueForKey:key];
+                    if (![value isEqual:observer.oldValue]) {
+                        RLMWillChange(observer, key);
+                        RLMDidChange(observer, key, value);
+                    }
                 }
-
             }
         }
     }
