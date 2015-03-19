@@ -114,7 +114,7 @@ struct KVOHelper {
     XCTAssertTrue(called);
 }
 
-- (void)testMultipleProperties {
+- (void)testOnlyCorrectProperty {
     RLMRealm *realm = RLMRealm.defaultRealm;
     [realm beginWriteTransaction];
 
@@ -150,6 +150,152 @@ struct KVOHelper {
     XCTAssertFalse(called);
     [realm refresh];
     XCTAssertFalse(called);
+}
+
+- (void)testMultipleProperties {
+    RLMRealm *realm = RLMRealm.defaultRealm;
+    [realm beginWriteTransaction];
+
+    AllIntSizesObject *obj1 = [AllIntSizesObject createInDefaultRealmWithObject:@[@1, @2, @3]];
+
+    __block bool called1 = false;
+    auto h1 = KVOHelper(self, obj1, @"int16", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int16");
+        XCTAssertEqualObjects(obj, obj1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @2);
+        called1 = true;
+    });
+
+    __block bool called2 = false;
+    auto h2 = KVOHelper(self, obj1, @"int32", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int32");
+        XCTAssertEqualObjects(obj, obj1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @2);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @4);
+        called2 = true;
+    });
+
+    __block bool called3 = false;
+    auto h3 = KVOHelper(self, obj1, @"int64", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int64");
+        XCTAssertEqualObjects(obj, obj1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @3);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @6);
+        called3 = true;
+    });
+
+    obj1.int16 = 2;
+    XCTAssertTrue(called1);
+    obj1.int32 = 4;
+    XCTAssertTrue(called2);
+    obj1.int64 = 6;
+    XCTAssertTrue(called3);
+    [realm commitWriteTransaction];
+}
+
+- (void)testMultiplePropertiesRefresh {
+    RLMRealm *realm = RLMRealm.defaultRealm;
+    [realm beginWriteTransaction];
+
+    AllIntSizesObject *obj1 = [AllIntSizesObject createInDefaultRealmWithObject:@[@1, @2, @3]];
+    [realm commitWriteTransaction];
+
+    __block bool called1 = false;
+    auto h1 = KVOHelper(self, obj1, @"int16", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int16");
+        XCTAssertEqualObjects(obj, obj1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @2);
+        called1 = true;
+    });
+
+    __block bool called2 = false;
+    auto h2 = KVOHelper(self, obj1, @"int32", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int32");
+        XCTAssertEqualObjects(obj, obj1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @2);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @4);
+        called2 = true;
+    });
+
+    __block bool called3 = false;
+    auto h3 = KVOHelper(self, obj1, @"int64", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int64");
+        XCTAssertEqualObjects(obj, obj1);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @3);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @6);
+        called3 = true;
+    });
+
+    dispatch_queue_t queue = dispatch_queue_create("queue", 0);
+    dispatch_async(queue, ^{
+        AllIntSizesObject *obj2 = [AllIntSizesObject allObjects].firstObject;
+        [obj2.realm transactionWithBlock:^{
+            obj2.int16 = 2;
+        }];
+    });
+    dispatch_sync(queue, ^{});
+    [realm refresh];
+    XCTAssertTrue(called1);
+
+    XCTAssertFalse(called2);
+    dispatch_async(queue, ^{
+        AllIntSizesObject *obj2 = [AllIntSizesObject allObjects].firstObject;
+        [obj2.realm transactionWithBlock:^{
+            obj2.int32 = 4;
+        }];
+    });
+    dispatch_sync(queue, ^{});
+    [realm refresh];
+    XCTAssertTrue(called2);
+
+    XCTAssertFalse(called3);
+    dispatch_async(queue, ^{
+        AllIntSizesObject *obj2 = [AllIntSizesObject allObjects].firstObject;
+        [obj2.realm transactionWithBlock:^{
+            obj2.int64 = 6;
+        }];
+    });
+    dispatch_sync(queue, ^{});
+    [realm refresh];
+    XCTAssertTrue(called3);
+}
+
+- (void)testUnrelatedObjects {
+    RLMRealm *realm = RLMRealm.defaultRealm;
+    [realm beginWriteTransaction];
+
+    AllIntSizesObject *obj1 = [AllIntSizesObject createInDefaultRealmWithObject:@[@1, @2, @3]];
+    AllIntSizesObject *obj2 = [AllIntSizesObject createInDefaultRealmWithObject:@[@1, @2, @3]];
+
+    auto h1 = KVOHelper(self, obj1, @"int16", ^(NSString *, id, NSDictionary *) {
+        XCTFail(@"obj1 modified");
+    });
+    auto h2 = KVOHelper(self, obj1, @"int32", ^(NSString *, id, NSDictionary *) {
+        XCTFail(@"obj1 modified");
+    });
+    __block bool called = false;
+    auto h3 = KVOHelper(self, obj2, @"int32", ^(NSString *keyPath, id obj, NSDictionary *changeDictionary) {
+        XCTAssertEqualObjects(keyPath, @"int32");
+        XCTAssertEqualObjects(obj, obj2);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeOldKey], @2);
+        XCTAssertEqualObjects(changeDictionary[NSKeyValueChangeNewKey], @4);
+        called = true;
+    });
+
+    obj2.int32 = 4;
+    XCTAssertTrue(called);
+    [realm commitWriteTransaction];
+
+    dispatch_queue_t queue = dispatch_queue_create("queue", 0);
+    dispatch_async(queue, ^{
+        AllIntSizesObject *obj2 = [AllIntSizesObject allObjects].firstObject;
+        [obj2.realm transactionWithBlock:^{
+            obj2.int16 = 0;
+        }];
+    });
+    dispatch_sync(queue, ^{});
 }
 
 @end
