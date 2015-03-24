@@ -30,11 +30,14 @@ class TestCase: XCTestCase {
         Realm.defaultPath = realmPathForFile("\(realmFilePrefix()).default.realm")
         NSFileManager.defaultManager().createDirectoryAtPath(realmPathForFile(""), withIntermediateDirectories: true, attributes: nil, error: nil)
 
+        internalImplementation().setNumberOfTestIterations(1)
         autoreleasepool {
             self.setUp()
         }
         autoreleasepool {
             self.invocation.invoke()
+        }
+        autoreleasepool {
             self.tearDown()
         }
 
