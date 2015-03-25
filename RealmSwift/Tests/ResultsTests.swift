@@ -103,7 +103,7 @@ class ResultsTests: TestCase {
     func testDescription() {
         let regex = NSRegularExpression(pattern: "RLMResults <0x[a-z0-9]+>", options: nil, error: nil)
         let rawDescription = results.description
-        let description = regex!.stringByReplacingMatchesInString(rawDescription, options: nil, range: NSRange(location: 0, length: countElements(rawDescription)), withTemplate: "RLMResults <0x0>")
+        let description = regex!.stringByReplacingMatchesInString(rawDescription, options: nil, range: NSRange(location: 0, length: count(rawDescription)), withTemplate: "RLMResults <0x0>")
         XCTAssertEqual(description, "RLMResults <0x0> (\n\t[0] SwiftStringObject {\n\t\tstringCol = 1;\n\t},\n\t[1] SwiftStringObject {\n\t\tstringCol = 2;\n\t}\n)")
     }
 
@@ -124,9 +124,9 @@ class ResultsTests: TestCase {
     }
 
     func testIndexOfPredicate() {
-        let pred1 = NSPredicate(format: "stringCol = '1'")!
-        let pred2 = NSPredicate(format: "stringCol = '2'")!
-        let pred3 = NSPredicate(format: "stringCol = '3'")!
+        let pred1 = NSPredicate(format: "stringCol = '1'", argumentArray: nil)
+        let pred2 = NSPredicate(format: "stringCol = '2'", argumentArray: nil)
+        let pred3 = NSPredicate(format: "stringCol = '3'", argumentArray: nil)
 
         XCTAssertEqual(Int(0), results.indexOf(pred1)!)
         XCTAssertEqual(Int(1), results.indexOf(pred2)!)
@@ -168,9 +168,9 @@ class ResultsTests: TestCase {
     }
 
     func testFilterPredicate() {
-        let pred1 = NSPredicate(format: "stringCol = '1'")!
-        let pred2 = NSPredicate(format: "stringCol = '2'")!
-        let pred3 = NSPredicate(format: "stringCol = '3'")!
+        let pred1 = NSPredicate(format: "stringCol = '1'", argumentArray: nil)
+        let pred2 = NSPredicate(format: "stringCol = '2'", argumentArray: nil)
+        let pred3 = NSPredicate(format: "stringCol = '3'", argumentArray: nil)
 
         XCTAssertEqual(Int(1), results.filter(pred1).count)
         XCTAssertEqual(Int(1), results.filter(pred2).count)

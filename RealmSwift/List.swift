@@ -118,7 +118,7 @@ public final class List<T: Object>: ListBase {
     public subscript(index: Int) -> T {
         get {
             throwForNegativeIndex(index)
-            return _rlmArray[UInt(index)] as T
+            return _rlmArray[UInt(index)] as! T
         }
         set {
             throwForNegativeIndex(index)
@@ -127,10 +127,10 @@ public final class List<T: Object>: ListBase {
     }
 
     /// Returns the first object in the list, or `nil` if empty.
-    public var first: T? { return _rlmArray.firstObject() as T? }
+    public var first: T? { return _rlmArray.firstObject() as? T }
 
     /// Returns the last object in the list, or `nil` if empty.
-    public var last: T? { return _rlmArray.lastObject() as T? }
+    public var last: T? { return _rlmArray.lastObject() as? T }
 
     // MARK: Filtering
 

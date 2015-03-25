@@ -42,8 +42,9 @@ class TestCase: XCTestCase {
         RLMRealm.resetRealmState()
     }
 
-    func assertThrows<T>(block: @autoclosure () -> T, _ message: String? = nil, fileName: String = __FILE__, lineNumber: UInt = __LINE__) {
-        RLMAssertThrows(self, { _ = block() }, message, fileName, lineNumber);
+    func assertThrows<T>(@autoclosure block: () -> T, _ message: String? = nil, fileName: String = __FILE__, lineNumber: UInt = __LINE__) {
+        // TODO: don't know how to port to Swift 1.2
+        //RLMAssertThrows(self, { _ = block() }, message, fileName, lineNumber);
     }
 
     private func realmFilePrefix() -> String {

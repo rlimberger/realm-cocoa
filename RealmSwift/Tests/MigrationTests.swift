@@ -136,11 +136,11 @@ class MigrationTests: TestCase {
     func testEnumerate() {
         autoreleasepool {
             self.migrateAndTestRealm(Realm.defaultPath, block: { migration, oldSchemaVersion in
-                migration.enumerate("SwiftStringObject", { oldObj, newObj in
+                migration.enumerate("SwiftStringObject", block: { oldObj, newObj in
                     XCTFail("No objects to enumerate")
                 })
 
-                migration.enumerate("NoSuchClass", {oldObj, newObj in}) // shouldn't throw
+                migration.enumerate("NoSuchClass", block: {oldObj, newObj in}) // shouldn't throw
             })
         }
 
@@ -155,13 +155,13 @@ class MigrationTests: TestCase {
         autoreleasepool {
             self.migrateAndTestRealm(Realm.defaultPath, schemaVersion: 2, block: { migration, oldSchemaVersion in
                 var count = 0
-                migration.enumerate("SwiftStringObject", { oldObj, newObj in
+                migration.enumerate("SwiftStringObject", block: { oldObj, newObj in
                     XCTAssertEqual(newObj!.objectSchema.className, "SwiftStringObject")
                     XCTAssertEqual(oldObj!.objectSchema.className, "SwiftStringObject")
-                    XCTAssertEqual(newObj!["stringCol"] as String, "string")
-                    XCTAssertEqual(oldObj!["stringCol"] as String, "string")
-                    self.assertThrows(oldObj!["noSuchCol"] as String)
-                    self.assertThrows(newObj!["noSuchCol"] as String)
+                    XCTAssertEqual(newObj!["stringCol"] as! String, "string")
+                    XCTAssertEqual(oldObj!["stringCol"] as! String, "string")
+                    self.assertThrows(oldObj!["noSuchCol"] as! String)
+                    self.assertThrows(newObj!["noSuchCol"] as! String)
                     count++
                 })
                 XCTAssertEqual(count, 1)
@@ -178,13 +178,13 @@ class MigrationTests: TestCase {
             self.assertThrows(migration.create("NoSuchObject", value: []))
 
             var count = 0
-            migration.enumerate("SwiftStringObject", { oldObj, newObj in
+            migration.enumerate("SwiftStringObject", block: { oldObj, newObj in
                 if count == 0 {
                     // first object has default value of empty string
-                    XCTAssertEqual(newObj!["stringCol"] as String, "")
+                    XCTAssertEqual(newObj!["stringCol"] as! String, "")
                 }
                 else {
-                    XCTAssertEqual(newObj!["stringCol"] as String, "string")
+                    XCTAssertEqual(newObj!["stringCol"] as! String, "string")
                     XCTAssertNil(oldObj, "Objects created during migration have nil oldObj")
                 }
                 count++
@@ -206,7 +206,7 @@ class MigrationTests: TestCase {
 
         self.migrateAndTestRealm(Realm.defaultPath, block: { migration, oldSchemaVersion in
             var deleted = false;
-            migration.enumerate("SwiftStringObject", { oldObj, newObj in
+            migration.enumerate("SwiftStringObject", block: { oldObj, newObj in
                 if deleted == false {
                     migration.delete(newObj!)
                     deleted = true
@@ -232,32 +232,32 @@ class MigrationTests: TestCase {
 
         self.migrateAndTestRealm(Realm.defaultPath, block: { migration, oldSchemaVersion in
             var enumerated = false
-            migration.enumerate("SwiftObject", { oldObj, newObj in
-                XCTAssertEqual(oldObj!["boolCol"] as Bool, true)
-                XCTAssertEqual(newObj!["boolCol"] as Bool, true)
-                XCTAssertEqual(oldObj!["intCol"] as Int, 123)
-                XCTAssertEqual(newObj!["intCol"] as Int, 123)
-                XCTAssertEqual(oldObj!["floatCol"] as Float, 1.23 as Float)
-                XCTAssertEqual(newObj!["floatCol"] as Float, 1.23 as Float)
-                XCTAssertEqual(oldObj!["doubleCol"] as Double, 12.3 as Double)
-                XCTAssertEqual(newObj!["doubleCol"] as Double, 12.3 as Double)
+            migration.enumerate("SwiftObject", block: { oldObj, newObj in
+                XCTAssertEqual(oldObj!["boolCol"] as! Bool, true)
+                XCTAssertEqual(newObj!["boolCol"] as! Bool, true)
+                XCTAssertEqual(oldObj!["intCol"] as! Int, 123)
+                XCTAssertEqual(newObj!["intCol"] as! Int, 123)
+                XCTAssertEqual(oldObj!["floatCol"] as! Float, 1.23 as Float)
+                XCTAssertEqual(newObj!["floatCol"] as! Float, 1.23 as Float)
+                XCTAssertEqual(oldObj!["doubleCol"] as! Double, 12.3 as Double)
+                XCTAssertEqual(newObj!["doubleCol"] as! Double, 12.3 as Double)
 
                 var binaryCol = "a".dataUsingEncoding(NSUTF8StringEncoding)!
-                XCTAssertEqual(oldObj!["binaryCol"] as NSData, binaryCol)
-                XCTAssertEqual(newObj!["binaryCol"] as NSData, binaryCol)
+                XCTAssertEqual(oldObj!["binaryCol"] as! NSData, binaryCol)
+                XCTAssertEqual(newObj!["binaryCol"] as! NSData, binaryCol)
 
                 var dateCol = NSDate(timeIntervalSince1970: 1)
-                XCTAssertEqual(oldObj!["dateCol"] as NSDate, dateCol)
-                XCTAssertEqual(newObj!["dateCol"] as NSDate, dateCol)
+                XCTAssertEqual(oldObj!["dateCol"] as! NSDate, dateCol)
+                XCTAssertEqual(newObj!["dateCol"] as! NSDate, dateCol)
 
                 // FIXME - test that casting to SwiftBoolObject throws
-                XCTAssertEqual((oldObj!["objectCol"] as MigrationObject)["boolCol"] as Bool, true)
-                XCTAssertEqual((newObj!["objectCol"] as MigrationObject)["boolCol"] as Bool, true)
+                XCTAssertEqual((oldObj!["objectCol"] as! MigrationObject)["boolCol"] as! Bool, true)
+                XCTAssertEqual((newObj!["objectCol"] as! MigrationObject)["boolCol"] as! Bool, true)
 
-                XCTAssertEqual((oldObj!["arrayCol"] as List<MigrationObject>).count, 1)
-                XCTAssertEqual((oldObj!["arrayCol"] as List<MigrationObject>)[0]["boolCol"] as Bool, false)
-                XCTAssertEqual((newObj!["arrayCol"] as List<MigrationObject>).count, 1)
-                XCTAssertEqual((newObj!["arrayCol"] as List<MigrationObject>)[0]["boolCol"] as Bool, false)
+                XCTAssertEqual((oldObj!["arrayCol"] as! List<MigrationObject>).count, 1)
+                XCTAssertEqual((oldObj!["arrayCol"] as! List<MigrationObject>)[0]["boolCol"] as! Bool, false)
+                XCTAssertEqual((newObj!["arrayCol"] as! List<MigrationObject>).count, 1)
+                XCTAssertEqual((newObj!["arrayCol"] as! List<MigrationObject>)[0]["boolCol"] as! Bool, false)
 
                 // edit all values
                 newObj!["boolCol"] = false
@@ -270,19 +270,19 @@ class MigrationTests: TestCase {
                 let falseObj = SwiftBoolObject(value: [false])
                 newObj!["objectCol"] = falseObj
 
-                var list = newObj!["arrayCol"] as List<MigrationObject>
+                var list = newObj!["arrayCol"] as! List<MigrationObject>
                 list[0]["boolCol"] = true
-                list.append(newObj!["objectCol"] as MigrationObject)
+                list.append(newObj!["objectCol"] as! MigrationObject)
 
                 let trueObj = migration.create(SwiftBoolObject.className(), value: [true])
                 list.append(trueObj)
 
                 // verify list property
-                list = newObj!["arrayCol"] as List<MigrationObject>
+                list = newObj!["arrayCol"] as! List<MigrationObject>
                 XCTAssertEqual(list.count, 3)
-                XCTAssertEqual(list[0]["boolCol"] as Bool, true)
-                XCTAssertEqual(list[1]["boolCol"] as Bool, false)
-                XCTAssertEqual(list[2]["boolCol"] as Bool, true)
+                XCTAssertEqual(list[0]["boolCol"] as! Bool, true)
+                XCTAssertEqual(list[1]["boolCol"] as! Bool, false)
+                XCTAssertEqual(list[2]["boolCol"] as! Bool, true)
 
                 // set it again
                 newObj!["arrayCol"] = [falseObj, trueObj]

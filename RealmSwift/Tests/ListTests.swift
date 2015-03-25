@@ -95,8 +95,8 @@ class ListTests: TestCase {
     }
 
     func testIndexOfPredicate() {
-        let pred1 = NSPredicate(format: "stringCol = '1'")!
-        let pred2 = NSPredicate(format: "stringCol = '2'")!
+        let pred1 = NSPredicate(format: "stringCol = '1'", argumentArray: nil)
+        let pred2 = NSPredicate(format: "stringCol = '2'", argumentArray: nil)
 
         XCTAssertNil(array.indexOf(pred1))
         XCTAssertNil(array.indexOf(pred2))
@@ -175,8 +175,8 @@ class ListTests: TestCase {
     }
 
     func testFilterPredicate() {
-        let pred1 = NSPredicate(format: "stringCol = '1'")!
-        let pred2 = NSPredicate(format: "stringCol = '2'")!
+        let pred1 = NSPredicate(format: "stringCol = '1'", argumentArray: nil)
+        let pred2 = NSPredicate(format: "stringCol = '2'", argumentArray: nil)
 
         XCTAssertEqual(Int(0), array.filter(pred1).count)
         XCTAssertEqual(Int(0), array.filter(pred2).count)
@@ -374,7 +374,7 @@ class ListTests: TestCase {
 
         // Make sure we can enumerate
         for obj in array {
-            XCTAssertTrue(countElements(obj.description) > 0, "Object should have description")
+            XCTAssertTrue(count(obj.description) > 0, "Object should have description")
         }
     }
 }
@@ -404,8 +404,8 @@ class ListStandaloneTests: ListTests {
     }
 
     override func testFilterPredicate() {
-        let pred1 = NSPredicate(format: "stringCol = '1'")!
-        let pred2 = NSPredicate(format: "noSuchCol = '2'")!
+        let pred1 = NSPredicate(format: "stringCol = '1'", argumentArray: nil)
+        let pred2 = NSPredicate(format: "noSuchCol = '2'", argumentArray: nil)
 
         assertThrows(array.filter(pred1))
         assertThrows(array.filter(pred2))
@@ -417,8 +417,8 @@ class ListStandaloneTests: ListTests {
     }
 
     override func testIndexOfPredicate() {
-        let pred1 = NSPredicate(format: "stringCol = '1'")!
-        let pred2 = NSPredicate(format: "noSuchCol = '2'")!
+        let pred1 = NSPredicate(format: "stringCol = '1'", argumentArray: nil)
+        let pred2 = NSPredicate(format: "noSuchCol = '2'", argumentArray: nil)
 
         assertThrows(array.indexOf(pred1))
         assertThrows(array.indexOf(pred2))
